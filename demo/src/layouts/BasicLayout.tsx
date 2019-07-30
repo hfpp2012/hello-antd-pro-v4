@@ -153,6 +153,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       rightContentRender={rightProps => <RightContent {...rightProps} />}
       {...props}
       {...settings}
+      title="求知久久"
     >
       {children}
     </ProLayout>

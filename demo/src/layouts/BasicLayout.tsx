@@ -8,6 +8,7 @@ import ProLayout, {
   MenuDataItem,
   BasicLayoutProps as ProLayoutProps,
   Settings,
+  DefaultFooter,
 } from '@ant-design/pro-layout';
 import React, { useEffect } from 'react';
 import Link from 'umi/link';
@@ -19,11 +20,6 @@ import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState, Dispatch } from '@/models/connect';
 import { isAntDesignPro } from '@/utils/utils';
 import logo from '@/assets/logo.png';
-
-import { Icon, Layout } from 'antd';
-import GlobalFooter from '@ant-design/pro-layout/lib/GlobalFooter';
-
-const { Footer } = Layout;
 
 export interface BasicLayoutProps extends ProLayoutProps {
   breadcrumbNameMap: {
@@ -50,7 +46,7 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
 
-const defaultLinks = [
+const links = [
   {
     key: 'qiuzhi99',
     title: 'qiuzhi99',
@@ -65,22 +61,13 @@ const defaultLinks = [
   },
 ];
 
-const defaultCopyright = '汕尾求知科技有限公司';
+const copyright = '汕尾求知科技有限公司';
 
 const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
   if (!isAntDesignPro()) {
     return (
       <>
-        <Footer style={{ padding: 0 }}>
-          <GlobalFooter
-            links={defaultLinks}
-            copyright={
-              <>
-                Copyright <Icon type="copyright" /> {defaultCopyright}
-              </>
-            }
-          />
-        </Footer>
+        <DefaultFooter links={links} copyright={copyright} />
       </>
     );
   }

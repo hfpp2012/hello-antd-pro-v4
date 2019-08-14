@@ -1,10 +1,8 @@
 import { Avatar, Icon, Menu, Spin } from 'antd';
 import { ClickParam } from 'antd/es/menu';
-import { FormattedMessage } from 'umi-plugin-react/locale';
 import React from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
-
 import { ConnectProps, ConnectState } from '@/models/connect';
 import { CurrentUser } from '@/models/user';
 import HeaderDropdown from '../HeaderDropdown';
@@ -21,6 +19,7 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
 
     if (key === 'logout') {
       const { dispatch } = this.props;
+
       if (dispatch) {
         dispatch({
           type: 'login/logout',
@@ -29,11 +28,13 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
 
       return;
     }
+
     router.push(`/account/${key}`);
   };
 
   render(): React.ReactNode {
     const { currentUser = {}, menu } = this.props;
+
     if (!menu) {
       return (
         <span className={`${styles.action} ${styles.account}`}>
@@ -42,24 +43,24 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
         </span>
       );
     }
+
     const menuHeaderDropdown = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={this.onMenuClick}>
         <Menu.Item key="center">
           <Icon type="user" />
-          <FormattedMessage id="menu.account.center" defaultMessage="account center" />
+          个人中心
         </Menu.Item>
         <Menu.Item key="settings">
           <Icon type="setting" />
-          <FormattedMessage id="menu.account.settings" defaultMessage="account settings" />
+          个人设置
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout">
           <Icon type="logout" />
-          <FormattedMessage id="menu.account.logout" defaultMessage="logout" />
+          退出登录
         </Menu.Item>
       </Menu>
     );
-
     return currentUser && currentUser.name ? (
       <HeaderDropdown overlay={menuHeaderDropdown}>
         <span className={`${styles.action} ${styles.account}`}>
@@ -68,10 +69,17 @@ class AvatarDropdown extends React.Component<GlobalHeaderRightProps> {
         </span>
       </HeaderDropdown>
     ) : (
-      <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
+      <Spin
+        size="small"
+        style={{
+          marginLeft: 8,
+          marginRight: 8,
+        }}
+      />
     );
   }
 }
+
 export default connect(({ user }: ConnectState) => ({
   currentUser: user.currentUser,
 }))(AvatarDropdown);

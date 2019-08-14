@@ -27,11 +27,9 @@ const GlobalHeaderRight: React.SFC<GlobalHeaderRightProps> = props => {
         placeholder="站内搜索"
         dataSource={['搜索提示一', '搜索提示二', '搜索提示三']}
         onSearch={value => {
-          // eslint-disable-next-line
           console.log('input', value);
         }}
         onPressEnter={value => {
-          // eslint-disable-next-line
           console.log('enter', value);
         }}
       />

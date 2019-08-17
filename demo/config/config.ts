@@ -77,6 +77,34 @@ export default {
   // umi routes: https://umijs.org/zh/guide/router.html
   routes: [
     {
+      path: '/register-result',
+      component: '../layouts/BlankLayout',
+      routes: [
+        {
+          name: '注册成功',
+          path: '/register-result',
+          component: './user/register/result',
+        },
+        {
+          component: './404',
+        },
+      ],
+    },
+    {
+      path: '/user',
+      component: '../layouts/UserLayout',
+      routes: [
+        {
+          name: 'register',
+          path: '/user/register',
+          component: './user/register',
+        },
+        {
+          component: './404',
+        },
+      ],
+    },
+    {
       path: '/',
       component: '../layouts/BasicLayout',
       Routes: ['src/pages/Authorized'],
@@ -98,6 +126,7 @@ export default {
         },
       ],
     },
+
     {
       component: './404',
     },
@@ -150,13 +179,11 @@ export default {
     basePath: '/',
   },
   chainWebpack: webpackPlugin,
-  /*
   proxy: {
-    '/server/api/': {
-      target: 'https://preview.pro.ant.design/',
+    '/api/': {
+      target: 'http://localhost:6060',
       changeOrigin: true,
-      pathRewrite: { '^/server': '' },
+      pathRewrite: { '': '' },
     },
   },
-  */
 } as IConfig;

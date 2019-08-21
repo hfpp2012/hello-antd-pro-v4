@@ -214,9 +214,10 @@ class Register extends Component<RegisterProps, RegisterState> {
   };
 
   render() {
-    const { form, submitting } = this.props;
+    const { form, submitting, userRegister } = this.props;
     const { getFieldDecorator } = form;
     const { count, prefix, help, visible } = this.state;
+    const { errors } = userRegister;
     return (
       <div className={styles.main}>
         <h3>注册</h3>
@@ -286,15 +287,15 @@ class Register extends Component<RegisterProps, RegisterState> {
               })(<Input size="large" type="password" placeholder="至少6位密码，区分大小写" />)}
             </Popover>
           </FormItem>
-          <FormItem>
+          <FormItem
+            validateStatus={errors.passwordConfirmation ? 'error' : ''}
+            help={errors.passwordConfirmation ? errors.passwordConfirmation : ''}
+          >
             {getFieldDecorator('passwordConfirmation', {
               rules: [
                 {
                   required: true,
                   message: '请确认密码！',
-                },
-                {
-                  validator: this.checkConfirm,
                 },
               ],
             })(<Input size="large" type="password" placeholder="确认密码" />)}

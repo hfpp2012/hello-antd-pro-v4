@@ -7,6 +7,7 @@ export interface StateType {
   status?: 'ok' | 'error';
   currentAuthority?: 'user' | 'guest' | 'admin';
   errors?: any;
+  image?: any;
 }
 
 export type Effect = (

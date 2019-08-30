@@ -5,6 +5,7 @@ import { Dispatch } from 'redux';
 import { FormComponentProps } from 'antd/es/form';
 import { StateType } from './model';
 import { connect } from 'dva';
+import uuidv4 from 'uuid/v4';
 
 interface RegisterProps extends FormComponentProps {
   dispatch: Dispatch<any>;
@@ -15,6 +16,7 @@ interface RegisterProps extends FormComponentProps {
 interface RegisterState {
   count: number;
   confirmDirty: boolean;
+  image: string;
 }
 
 export interface CaptchaParams {
@@ -30,6 +32,7 @@ export interface UserRegisterParams {
     phone: string;
     code: string;
   };
+  _rucaptcha: string;
 }
 
 @connect(
@@ -52,6 +55,7 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
   state: RegisterState = {
     count: 0,
     confirmDirty: false,
+    image: 'http://localhost:5000/rucaptcha',
   };
 
   interval: number | undefined = undefined;
@@ -101,8 +105,22 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
     });
   };
 
+  onGetCaptchaImage = () => {
+    // const randomString =
+    //   Math.random()
+    //     .toString(36)
+    //     .substring(2, 15) +
+    //   Math.random()
+    //     .toString(36)
+    //     .substring(2, 15);
+    const randomString = uuidv4();
+    this.setState({
+      image: `http://localhost:5000/rucaptcha?a=${randomString}`,
+    });
+  };
+
   render() {
-    const { count } = this.state;
+    const { count, image } = this.state;
 
     const { submitting, form, userRegister } = this.props;
 
@@ -190,6 +208,18 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
                 >
                   {count ? `${count} s` : '获取验证码'}
                 </Button>
+              </Col>
+            </Row>
+          </Form.Item>
+          <Form.Item
+            validateStatus={errors.rucaptcha ? 'error' : ''}
+            help={errors.rucaptcha ? errors.rucaptcha.join(',') : ''}
+            label="图形验证码"
+          >
+            <Row gutter={8}>
+              <Col span={12}>{getFieldDecorator('_rucaptcha')(<Input />)}</Col>
+              <Col span={12}>
+                <img className={styles.captcha_img} src={image} onClick={this.onGetCaptchaImage} />
               </Col>
             </Row>
           </Form.Item>

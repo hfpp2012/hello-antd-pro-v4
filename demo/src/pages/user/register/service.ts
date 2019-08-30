@@ -1,9 +1,16 @@
 import request from '@/utils/request';
-import { UserRegisterParams } from './index';
+import { UserRegisterParams, CaptchaParams } from './new';
 
 export async function fakeRegister(params: UserRegisterParams) {
-  return request('/api/users', {
+  return request('http://localhost:5000/api/v1/users', {
     method: 'POST',
     data: params,
+  });
+}
+
+export async function fakeCaptcha(params: CaptchaParams) {
+  return request('http://localhost:5000/api/v1/sms_code', {
+    method: 'GET',
+    params: params,
   });
 }

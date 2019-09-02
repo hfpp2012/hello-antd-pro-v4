@@ -97,7 +97,7 @@ export default {
         {
           name: 'register',
           path: '/user/register',
-          component: './user/register',
+          component: './user/register/new',
         },
         {
           component: './404',

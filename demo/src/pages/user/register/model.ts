@@ -5,10 +5,11 @@ import { fakeRegister, fakeCaptcha } from './service';
 import uuidv4 from 'uuid/v4';
 
 export interface StateType {
-  status?: 'ok' | 'error';
+  success?: boolean;
   currentAuthority?: 'user' | 'guest' | 'admin';
   errors?: any;
   image?: string;
+  response?: any;
 }
 
 export type Effect = (
@@ -28,6 +29,7 @@ export interface ModelType {
     registerHandle: Reducer<StateType>;
     errorsHandle: Reducer<StateType>;
     setCaptchaImage: Reducer<StateType>;
+    clearErrors: Reducer<StateType>;
   };
 }
 
@@ -35,8 +37,9 @@ const Model: ModelType = {
   namespace: 'userRegister',
 
   state: {
-    status: undefined,
+    success: false,
     errors: {},
+    response: {},
     image: 'http://localhost:5000/rucaptcha',
   },
 
@@ -47,6 +50,9 @@ const Model: ModelType = {
         yield put({
           type: 'registerHandle',
           payload: response,
+        });
+        yield put({
+          type: 'clearErrors',
         });
       } catch (e) {
         yield put({
@@ -74,13 +80,21 @@ const Model: ModelType = {
     registerHandle(state, { payload }) {
       return {
         ...state,
-        status: payload.status,
+        success: payload.success,
+        response: payload.response,
       };
     },
     errorsHandle(state, { payload }) {
       return {
         ...state,
         errors: payload,
+      };
+    },
+
+    clearErrors(state, {}) {
+      return {
+        ...state,
+        errors: {},
       };
     },
 

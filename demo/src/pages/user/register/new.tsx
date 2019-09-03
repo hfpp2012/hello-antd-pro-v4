@@ -6,7 +6,7 @@ import { FormComponentProps } from 'antd/es/form';
 import { Dispatch } from 'redux';
 import { StateType } from './model';
 import { connect } from 'dva';
-import uuidv4 from 'uuid/v4';
+import router from 'umi/router';
 
 interface RegisterProps extends FormComponentProps {
   dispatch: Dispatch<any>;
@@ -16,6 +16,7 @@ interface RegisterProps extends FormComponentProps {
 
 interface RegisterState {
   count: number;
+  disabled: boolean;
 }
 
 export interface UserRegisterParams {
@@ -52,7 +53,20 @@ export interface CaptchaParams {
 class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
   state: RegisterState = {
     count: 0,
+    disabled: false,
   };
+
+  componentDidUpdate() {
+    const { userRegister } = this.props;
+
+    if (userRegister.success) {
+      message.success('注册成功！');
+      router.push({
+        pathname: '/',
+        state: {},
+      });
+    }
+  }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +93,7 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
     let count = 59;
     this.setState({
       count,
+      disabled: true,
     });
     this.interval = window.setInterval(() => {
       count -= 1;
@@ -88,6 +103,9 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
 
       if (count === 0) {
         clearInterval(this.interval);
+        this.setState({
+          disabled: false,
+        });
       }
     }, 1000);
 
@@ -122,7 +140,7 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
     const { getFieldDecorator } = this.props.form;
     const { errors, image } = userRegister;
 
-    const { count } = this.state;
+    const { count, disabled } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -197,7 +215,9 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
             <Row gutter={8}>
               <Col span={12}>{getFieldDecorator('user[code]')(<Input />)}</Col>
               <Col span={12}>
-                <Button onClick={this.onGetCaptcha}>{count ? `${count} s` : '获取验证码'}</Button>
+                <Button disabled={disabled} onClick={this.onGetCaptcha}>
+                  {count ? `${count} s` : '获取验证码'}
+                </Button>
               </Col>
             </Row>
           </Form.Item>

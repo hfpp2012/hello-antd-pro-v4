@@ -16,7 +16,6 @@ interface RegisterProps extends FormComponentProps {
 
 interface RegisterState {
   count: number;
-  image: string;
 }
 
 export interface UserRegisterParams {
@@ -53,7 +52,6 @@ export interface CaptchaParams {
 class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
   state: RegisterState = {
     count: 0,
-    image: 'http://localhost:5000/rucaptcha',
   };
 
   handleSubmit = (e: React.FormEvent) => {
@@ -107,18 +105,24 @@ class RegistrationForm extends React.Component<RegisterProps, RegisterState> {
     //   Math.random()
     //     .toString(36)
     //     .substring(2, 15);
-    const randomString = uuidv4();
-    this.setState({
-      image: `http://localhost:5000/rucaptcha?a=${randomString}`,
+    // const randomString = uuidv4();
+    // this.setState({
+    //   image: `http://localhost:5000/rucaptcha?a=${randomString}`,
+    // });
+
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'userRegister/onGetCaptchaImage',
     });
   };
 
   render() {
     const { submitting, userRegister } = this.props;
     const { getFieldDecorator } = this.props.form;
-    const { errors } = userRegister;
+    const { errors, image } = userRegister;
 
-    const { count, image } = this.state;
+    const { count } = this.state;
 
     const formItemLayout = {
       labelCol: {

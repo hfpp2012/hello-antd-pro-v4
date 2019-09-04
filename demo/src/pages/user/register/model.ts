@@ -3,6 +3,7 @@ import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { fakeRegister, fakeCaptcha } from './service';
 import uuidv4 from 'uuid/v4';
+import { DOMAIN } from '@/utils/request';
 
 export interface StateType {
   success?: boolean;
@@ -40,7 +41,7 @@ const Model: ModelType = {
     success: false,
     errors: {},
     response: {},
-    image: 'http://localhost:5000/rucaptcha',
+    image: `${DOMAIN}/rucaptcha`,
   },
 
   effects: {
@@ -54,6 +55,8 @@ const Model: ModelType = {
         yield put({
           type: 'clearErrors',
         });
+
+        localStorage.setItem('token', response.response.auth_token);
       } catch (e) {
         yield put({
           type: 'errorsHandle',
@@ -102,7 +105,7 @@ const Model: ModelType = {
       const randomString = uuidv4();
       return {
         ...state,
-        image: `http://localhost:5000/rucaptcha?a=${randomString}`,
+        image: `${DOMAIN}/rucaptcha?a=${randomString}`,
       };
     },
   },

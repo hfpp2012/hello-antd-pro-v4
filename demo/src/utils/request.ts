@@ -40,12 +40,16 @@ import { extend } from 'umi-request';
 //   return response;
 // };
 
+export const DOMAIN =
+  process.env.NODE_ENV === 'production' ? `http://staging.qiuzhi99.com` : `http://localhost:5000`;
+
 /**
  * 配置request请求时的默认参数
  */
 const request = extend({
   // errorHandler, // 默认错误处理
   credentials: 'same-origin', // 默认请求是否带上cookie
+  prefix: `${DOMAIN}`,
 });
 
 export default request;

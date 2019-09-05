@@ -100,6 +100,11 @@ export default {
           component: './user/register/new',
         },
         {
+          name: 'login',
+          path: '/user/login',
+          component: './user/login',
+        },
+        {
           component: './404',
         },
       ],
@@ -126,7 +131,6 @@ export default {
         },
       ],
     },
-
     {
       component: './404',
     },
@@ -151,7 +155,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string,
+      localName: string
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||
@@ -183,7 +187,9 @@ export default {
     '/api/': {
       target: 'http://localhost:6060',
       changeOrigin: true,
-      pathRewrite: { '': '' },
+      pathRewrite: {
+        '': '',
+      },
     },
   },
 } as IConfig;

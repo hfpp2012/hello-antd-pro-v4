@@ -1,17 +1,20 @@
+import jwtDecode from 'jwt-decode';
+
 // use localStorage to store the authority info, which might be sent from server in actual project.
 export function getAuthority(str?: string): string | string[] {
   // return localStorage.getItem('antd-pro-authority') || ['admin', 'user'];
-  const authorityString =
-    typeof str === 'undefined' ? localStorage.getItem('antd-pro-authority') : str;
+  const authorityString = typeof str === 'undefined' ? localStorage.getItem('token') : str;
   // authorityString could be admin, "admin", ["admin"]
   let authority;
-  try {
-    if (authorityString) {
-      authority = JSON.parse(authorityString);
+
+  if (authorityString !== null) {
+    try {
+      authority = (jwtDecode(authorityString) as any).currentAuthority;
+    } catch (e) {
+      authority = authorityString;
     }
-  } catch (e) {
-    authority = authorityString;
   }
+
   if (typeof authority === 'string') {
     return [authority];
   }

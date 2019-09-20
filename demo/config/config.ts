@@ -119,6 +119,7 @@ export default {
           name: 'success',
           path: '/result/success',
           component: './result/success',
+          authority: ['admin', 'user'],
         },
         {
           path: '/',
@@ -155,7 +156,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string
+      localName: string,
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||

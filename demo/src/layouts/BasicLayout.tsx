@@ -17,6 +17,7 @@ import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState, Dispatch } from '@/models/connect';
 import { isAntDesignPro } from '@/utils/utils';
 import logo from '@/assets/logo.png';
+import { reloadAuthorized } from '@/utils/Authorized';
 
 export interface BasicLayoutProps extends ProLayoutProps {
   breadcrumbNameMap: {
@@ -101,6 +102,8 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
         type: 'settings/getSetting',
       });
     }
+
+    reloadAuthorized();
   }, []);
   /**
    * init variables

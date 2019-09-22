@@ -113,12 +113,12 @@ export default {
       path: '/',
       component: '../layouts/BasicLayout',
       Routes: ['src/pages/Authorized'],
-      authority: ['admin', 'user'],
       routes: [
         {
           name: 'success',
           path: '/result/success',
           component: './result/success',
+          authority: ['admin', 'user', 'guest'],
         },
         {
           path: '/',
@@ -155,7 +155,7 @@ export default {
         resourcePath: string;
       },
       _: string,
-      localName: string
+      localName: string,
     ) => {
       if (
         context.resourcePath.includes('node_modules') ||

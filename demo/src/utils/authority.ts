@@ -1,25 +1,31 @@
+import jwtDecode from 'jwt-decode';
+
 // use localStorage to store the authority info, which might be sent from server in actual project.
 export function getAuthority(str?: string): string | string[] {
   // return localStorage.getItem('antd-pro-authority') || ['admin', 'user'];
-  const authorityString =
-    typeof str === 'undefined' ? localStorage.getItem('antd-pro-authority') : str;
-  // authorityString could be admin, "admin", ["admin"]
+
+  const authorityString = typeof str === 'undefined' ? localStorage.getItem('token') : str;
+
   let authority;
-  try {
-    if (authorityString) {
-      authority = JSON.parse(authorityString);
+
+  if (authorityString !== null) {
+    try {
+      console.log(jwtDecode(authorityString));
+      authority = (jwtDecode(authorityString) as any).currentAuthority;
+    } catch (e) {
+      authority = authorityString;
     }
-  } catch (e) {
-    authority = authorityString;
   }
+  // const authority = jwtDecode(authorityString).currentAuthority;
+
   if (typeof authority === 'string') {
     return [authority];
   }
-  // preview.pro.ant.design only do not use in your production.
-  // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
+
   if (!authority && ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION === 'site') {
     return ['admin'];
   }
+
   return authority;
 }
 

@@ -121,6 +121,18 @@ export default {
           authority: ['admin', 'user', 'guest'],
         },
         {
+          name: '500',
+          path: '/exception/500',
+          component: './exception/500',
+          hideInMenu: true,
+        },
+        {
+          name: '403',
+          path: '/exception/403',
+          component: './exception/403',
+          hideInMenu: true,
+        },
+        {
           path: '/',
           name: '欢迎',
           icon: 'smile',

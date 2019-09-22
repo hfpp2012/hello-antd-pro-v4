@@ -4,6 +4,7 @@
  */
 import { extend, RequestOptionsInit } from 'umi-request';
 import { notification } from 'antd';
+import router from 'umi/router';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -26,7 +27,7 @@ const codeMessage = {
 /**
  * 异常处理程序
  */
-const errorHandler = (error: { response: Response }): Response => {
+const errorHandler = (error: { response: Response }): Response | void => {
   const { response } = error;
   const { status, url, statusText } = response;
 
@@ -49,6 +50,18 @@ const errorHandler = (error: { response: Response }): Response => {
     (<any>window).g_app._store.dispatch({
       type: 'login/logout',
     });
+
+    return;
+  }
+
+  if (status === 403) {
+    router.push('/exception/403');
+    return;
+  }
+
+  if (status === 500) {
+    router.push('/exception/500');
+    return;
   }
 
   const myError: any = new Error(errorText);

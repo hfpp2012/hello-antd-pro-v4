@@ -45,6 +45,7 @@ interface TableListState {
   selectedRows: TableListItem[];
   formValues: { [key: string]: string };
   stepFormValues: Partial<TableListItem>;
+  errorMessage: string | null;
 }
 
 /* eslint react/no-multi-comp:0 */
@@ -71,6 +72,7 @@ class TableList extends Component<TableListProps, TableListState> {
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
+    errorMessage: null,
   };
 
   columns: StandardTableColumnProps[] = [
@@ -172,7 +174,7 @@ class TableList extends Component<TableListProps, TableListState> {
         dispatch({
           type: 'movies/remove',
           payload: {
-            key: selectedRows.map(row => row.key),
+            id: selectedRows.map(row => row.id),
           },
           callback: () => {
             this.setState({
@@ -230,6 +232,7 @@ class TableList extends Component<TableListProps, TableListState> {
     this.setState({
       updateModalVisible: !!flag,
       stepFormValues: record || {},
+      errorMessage: null,
     });
   };
 
@@ -240,9 +243,11 @@ class TableList extends Component<TableListProps, TableListState> {
       payload: {
         desc: fields.desc,
       },
+      callback: () => {
+        message.success('添加成功');
+      },
     });
 
-    message.success('添加成功');
     this.handleModalVisible();
   };
 
@@ -253,10 +258,17 @@ class TableList extends Component<TableListProps, TableListState> {
       payload: {
         ...fields,
       },
+      callback: (msg: string | null) => {
+        if (msg === null) {
+          message.success('修改成功');
+          this.handleUpdateModalVisible();
+        } else {
+          this.setState({
+            errorMessage: msg,
+          });
+        }
+      },
     });
-
-    message.success('修改成功');
-    this.handleUpdateModalVisible();
   };
 
   renderSimpleForm() {
@@ -298,7 +310,13 @@ class TableList extends Component<TableListProps, TableListState> {
       loading,
     } = this.props;
 
-    const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
+    const {
+      selectedRows,
+      modalVisible,
+      updateModalVisible,
+      stepFormValues,
+      errorMessage,
+    } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -324,7 +342,6 @@ class TableList extends Component<TableListProps, TableListState> {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />
@@ -347,6 +364,7 @@ class TableList extends Component<TableListProps, TableListState> {
         {stepFormValues && Object.keys(stepFormValues).length ? (
           <UpdateForm
             {...updateMethods}
+            errorMessage={errorMessage}
             updateModalVisible={updateModalVisible}
             values={stepFormValues}
           />

@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { queryMovies, updateMovie, addRule, removeRule, updateRule } from './service';
+import { queryMovies, updateMovie, addRule, removeMovie } from './service';
 
 import { TableListData } from './data.d';
 
@@ -25,6 +25,7 @@ export interface ModelType {
   reducers: {
     save: Reducer<StateType>;
     updateMovie: Reducer<StateType>;
+    removeMovie: Reducer<StateType>;
   };
 }
 
@@ -35,6 +36,7 @@ const Model: ModelType = {
     data: {
       movies: [],
       page: {},
+      message: null,
     },
   },
 
@@ -55,20 +57,24 @@ const Model: ModelType = {
       if (callback) callback();
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
+      const response = yield call(removeMovie, payload);
       yield put({
-        type: 'save',
-        payload: response,
+        type: 'removeMovie',
+        payload: response.response,
       });
       if (callback) callback();
     },
     *update({ payload, callback }, { call, put }) {
-      const response = yield call(updateMovie, payload);
-      yield put({
-        type: 'updateMovie',
-        payload: response.response,
-      });
-      if (callback) callback();
+      try {
+        const response = yield call(updateMovie, payload);
+        yield put({
+          type: 'updateMovie',
+          payload: response.response,
+        });
+        callback(null);
+      } catch (e) {
+        callback(e.data.message);
+      }
     },
   },
 
@@ -91,6 +97,15 @@ const Model: ModelType = {
             }
             return movie;
           }),
+        },
+      };
+    },
+    removeMovie(state, action) {
+      return {
+        ...state,
+        data: {
+          ...state!.data,
+          movies: state!.data!.movies.filter(movie => movie.id !== action.payload.movie.id),
         },
       };
     },

@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal } from 'antd';
+import { Button, Form, Input, Modal, Alert } from 'antd';
 import React, { Component } from 'react';
 
 import { FormComponentProps } from 'antd/es/form';
@@ -16,6 +16,7 @@ export interface UpdateFormProps extends FormComponentProps {
   handleUpdate: (values: FormValueType) => void;
   updateModalVisible: boolean;
   values: Partial<TableListItem>;
+  errorMessage: string | null;
 }
 const FormItem = Form.Item;
 
@@ -106,7 +107,7 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
   };
 
   render() {
-    const { updateModalVisible, handleUpdateModalVisible, values } = this.props;
+    const { updateModalVisible, handleUpdateModalVisible, values, errorMessage } = this.props;
     const { formVals } = this.state;
 
     return (
@@ -120,6 +121,7 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
         onCancel={() => handleUpdateModalVisible(false, values)}
         afterClose={() => handleUpdateModalVisible()}
       >
+        {errorMessage === null ? null : <Alert message={errorMessage} type="error" showIcon />}
         {this.renderContent(formVals)}
       </Modal>
     );

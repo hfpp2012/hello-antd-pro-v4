@@ -51,11 +51,11 @@ const Model: ModelType = {
 
     *add({ payload, callback }, { call, put }) {
       try {
-        yield call(addMovie, payload);
-        // yield put({
-        //   type: 'createMovie',
-        //   payload: response.response,
-        // });
+        const response = yield call(addMovie, payload);
+        yield put({
+          type: 'createMovie',
+          payload: response.response,
+        });
         callback();
       } catch (e) {
         callback(e.data.message);

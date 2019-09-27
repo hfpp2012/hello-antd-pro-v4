@@ -122,13 +122,20 @@ export default {
             {
               name: '视频',
               path: '/admin/movies',
-              component: './list/table/list',
+              component: './admin/movies/list',
               icon: 'table',
             },
             {
-              name: '用户',
+              name: '视频详情页',
+              path: '/admin/movies/:id',
+              component: './admin/movies/show/$id.tsx',
+              icon: 'table',
+              hideInMenu: true,
+            },
+            {
+              name: '课程',
               path: '/admin/users',
-              component: './list/table/list',
+              component: './admin/movies/list',
               icon: 'table',
             },
           ],

@@ -26,6 +26,7 @@ import { TableListItem, TableListPagination, TableListParams } from './data.d';
 
 import styles from './style.less';
 import { truncateString } from '@/utils/utils';
+import Link from 'umi/link';
 
 const FormItem = Form.Item;
 const getValue = (obj: { [x: string]: string[] }) =>
@@ -79,6 +80,7 @@ class TableList extends Component<TableListProps, TableListState> {
     {
       title: '编号',
       dataIndex: 'id',
+      render: (id: number) => <Link to={`/admin/movies/${id}`}>{id}</Link>,
     },
     {
       title: '标题',

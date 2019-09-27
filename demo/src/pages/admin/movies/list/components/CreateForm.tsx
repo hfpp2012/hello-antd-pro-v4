@@ -5,9 +5,11 @@ import React from 'react';
 
 const FormItem = Form.Item;
 
+const { TextArea } = Input;
+
 interface CreateFormProps extends FormComponentProps {
   modalVisible: boolean;
-  handleAdd: (fieldsValue: { desc: string }) => void;
+  handleAdd: (fieldsValue: { title: string; body: string }) => void;
   handleModalVisible: () => void;
 }
 const CreateForm: React.FC<CreateFormProps> = props => {
@@ -22,15 +24,20 @@ const CreateForm: React.FC<CreateFormProps> = props => {
   return (
     <Modal
       destroyOnClose
-      title="新建规则"
+      title="新建视频"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="标题">
+        {form.getFieldDecorator('movie[title]', {
+          rules: [{ required: true, message: '必须填写标题', min: 5 }],
         })(<Input placeholder="请输入" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="内容">
+        {form.getFieldDecorator('movie[body]', {
+          rules: [{ required: true, message: '必须填写内容', min: 5 }],
+        })(<TextArea rows={4} placeholder="请输入" />)}
       </FormItem>
     </Modal>
   );

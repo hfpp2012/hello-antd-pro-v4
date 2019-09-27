@@ -87,11 +87,11 @@ class TableList extends Component<TableListProps, TableListState> {
       dataIndex: 'title',
       render: (val: string) => `${truncateString(val, 30)}`,
     },
-    {
-      title: '封面',
-      dataIndex: 'image_url',
-      render: (val: string) => <img src={val} width="80" height="60" />,
-    },
+    // {
+    //   title: '封面',
+    //   dataIndex: 'image_url',
+    //   render: (val: string) => <img src={val} width="80" height="60" />,
+    // },
     {
       title: '课程',
       dataIndex: 'playlist_name',
@@ -178,10 +178,20 @@ class TableList extends Component<TableListProps, TableListState> {
           payload: {
             id: selectedRows.map(row => row.id),
           },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
+          callback: (msg?: string) => {
+            if (msg) {
+              message.error(msg);
+            } else {
+              message.success('删除成功');
+
+              this.setState({
+                selectedRows: [],
+              });
+
+              dispatch({
+                type: 'movies/fetch',
+              });
+            }
           },
         });
         break;
@@ -254,6 +264,9 @@ class TableList extends Component<TableListProps, TableListState> {
           cb();
           message.success('添加成功');
           this.handleModalVisible();
+          // dispatch({
+          //   type: 'movies/fetch',
+          // });
         }
       },
     });

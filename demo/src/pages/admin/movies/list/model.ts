@@ -48,25 +48,30 @@ const Model: ModelType = {
         payload: response.response,
       });
     },
+
     *add({ payload, callback }, { call, put }) {
       try {
-        const response = yield call(addMovie, payload);
-        yield put({
-          type: 'createMovie',
-          payload: response.response,
-        });
+        yield call(addMovie, payload);
+        // yield put({
+        //   type: 'createMovie',
+        //   payload: response.response,
+        // });
         callback();
       } catch (e) {
         callback(e.data.message);
       }
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeMovie, payload);
-      yield put({
-        type: 'removeMovie',
-        payload: response.response,
-      });
-      if (callback) callback();
+      try {
+        yield call(removeMovie, payload);
+        yield put({
+          type: 'removeMovie',
+          payload: payload,
+        });
+        callback();
+      } catch (e) {
+        callback(e.data.message);
+      }
     },
     *update({ payload, callback }, { call, put }) {
       try {
@@ -119,7 +124,7 @@ const Model: ModelType = {
         ...state,
         data: {
           ...state!.data,
-          movies: state!.data!.movies.filter(movie => movie.id !== action.payload.movie.id),
+          movies: state!.data!.movies.filter(movie => !action.payload.id.includes(movie.id)),
         },
       };
     },

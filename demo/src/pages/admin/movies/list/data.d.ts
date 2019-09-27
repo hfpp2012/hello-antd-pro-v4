@@ -1,7 +1,7 @@
 export interface TableListItem {
   id: number;
   is_paid?: boolean;
-  image_url: string;
+  image_url?: string;
   title: string;
   playlist_name: string;
   created_at: Date;
@@ -14,6 +14,11 @@ export interface TableListPagination {
   total: number;
   pageSize: number;
   current: number;
+}
+
+export interface PlaylistData {
+  id: number;
+  name: string;
 }
 
 export interface TableListData {
@@ -31,6 +36,9 @@ interface UpdateMovieParams {
 export interface createParams {
   title: string;
   body: string;
+  playlist_id: number;
+  time: string;
+  mp4_url: string;
 }
 
 export interface createMovieParms {

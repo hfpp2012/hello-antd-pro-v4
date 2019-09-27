@@ -1,14 +1,14 @@
 import { Card, Descriptions } from 'antd';
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
+import { Dispatch, Action } from 'redux';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect } from 'dva';
 import { StateType } from './model';
 
 interface BasicProps {
   loading: boolean;
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch<Action<'movieShow/fetch'>>;
   movieShow: StateType;
   match: any;
 }
@@ -44,7 +44,7 @@ class Basic extends Component<BasicProps, BasicState> {
     const { movie } = movieShow;
     return (
       <PageHeaderWrapper>
-        {movie !== null && (
+        {!!movie && (
           <Card bordered={false}>
             <Descriptions title="视频详情" style={{ marginBottom: 32 }}>
               <Descriptions.Item label="标题">{movie.title}</Descriptions.Item>

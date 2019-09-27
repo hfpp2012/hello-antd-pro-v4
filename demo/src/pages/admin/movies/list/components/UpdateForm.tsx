@@ -16,7 +16,7 @@ export interface UpdateFormProps extends FormComponentProps {
   handleUpdate: (values: FormValueType) => void;
   updateModalVisible: boolean;
   values: Partial<TableListItem>;
-  errorMessage: string | null;
+  errorMessage?: string;
 }
 const FormItem = Form.Item;
 
@@ -121,7 +121,7 @@ class UpdateForm extends Component<UpdateFormProps, UpdateFormState> {
         onCancel={() => handleUpdateModalVisible(false, values)}
         afterClose={() => handleUpdateModalVisible()}
       >
-        {errorMessage === null ? null : <Alert message={errorMessage} type="error" showIcon />}
+        {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
         {this.renderContent(formVals)}
       </Modal>
     );

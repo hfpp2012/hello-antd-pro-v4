@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { TableListParams } from './data.d';
+import { createMovieParms, TableListParams } from './data.d';
 import { stringify } from 'qs';
 
 export async function queryMovies(params: TableListParams) {
@@ -7,12 +7,11 @@ export async function queryMovies(params: TableListParams) {
   return request(`/movies?${query}`);
 }
 
-export async function addRule(params: TableListParams) {
-  return request('/api/rule', {
+export async function addMovie(params: createMovieParms) {
+  return request('/movies', {
     method: 'POST',
     data: {
       ...params,
-      method: 'post',
     },
   });
 }

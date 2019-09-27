@@ -5,7 +5,7 @@ import { Movie } from './data.d';
 import { queryMovie } from './service';
 
 export interface StateType {
-  movie: Movie | null;
+  movie?: Movie;
 }
 
 export type Effect = (
@@ -27,9 +27,7 @@ export interface ModelType {
 const Model: ModelType = {
   namespace: 'movieShow',
 
-  state: {
-    movie: null,
-  },
+  state: {},
 
   effects: {
     *fetch({ payload }, { call, put }) {

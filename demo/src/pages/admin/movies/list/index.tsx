@@ -27,6 +27,7 @@ import { TableListItem, TableListPagination, TableListParams } from './data.d';
 import styles from './style.less';
 import { truncateString } from '@/utils/utils';
 import Link from 'umi/link';
+import { createMovieParms } from './data.d';
 
 const FormItem = Form.Item;
 const getValue = (obj: { [x: string]: string[] }) =>
@@ -46,7 +47,7 @@ interface TableListState {
   selectedRows: TableListItem[];
   formValues: { [key: string]: string };
   stepFormValues: Partial<TableListItem>;
-  errorMessage: string | null;
+  errorMessage?: string;
 }
 
 /* eslint react/no-multi-comp:0 */
@@ -73,7 +74,6 @@ class TableList extends Component<TableListProps, TableListState> {
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
-    errorMessage: null,
   };
 
   columns: StandardTableColumnProps[] = [
@@ -227,6 +227,7 @@ class TableList extends Component<TableListProps, TableListState> {
   handleModalVisible = (flag?: boolean) => {
     this.setState({
       modalVisible: !!flag,
+      errorMessage: undefined,
     });
   };
 
@@ -234,23 +235,28 @@ class TableList extends Component<TableListProps, TableListState> {
     this.setState({
       updateModalVisible: !!flag,
       stepFormValues: record || {},
-      errorMessage: null,
     });
   };
 
-  handleAdd = (fields: { desc: any }) => {
+  handleAdd = (fields: createMovieParms, cb: () => void) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'movies/add',
       payload: {
-        desc: fields.desc,
+        ...fields,
       },
-      callback: () => {
-        message.success('添加成功');
+      callback: (msg?: string) => {
+        if (msg) {
+          this.setState({
+            errorMessage: msg,
+          });
+        } else {
+          cb();
+          message.success('添加成功');
+          this.handleModalVisible();
+        }
       },
     });
-
-    this.handleModalVisible();
   };
 
   handleUpdate = (fields: FormValueType) => {
@@ -260,14 +266,14 @@ class TableList extends Component<TableListProps, TableListState> {
       payload: {
         ...fields,
       },
-      callback: (msg: string | null) => {
-        if (msg === null) {
-          message.success('修改成功');
-          this.handleUpdateModalVisible();
-        } else {
+      callback: (msg?: string) => {
+        if (msg) {
           this.setState({
             errorMessage: msg,
           });
+        } else {
+          message.success('修改成功');
+          this.handleUpdateModalVisible();
         }
       },
     });
@@ -362,7 +368,7 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} />
+        <CreateForm errorMessage={errorMessage} {...parentMethods} modalVisible={modalVisible} />
         {stepFormValues && Object.keys(stepFormValues).length ? (
           <UpdateForm
             {...updateMethods}

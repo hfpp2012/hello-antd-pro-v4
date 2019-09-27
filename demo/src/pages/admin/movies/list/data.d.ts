@@ -19,7 +19,6 @@ export interface TableListPagination {
 export interface TableListData {
   movies: TableListItem[];
   page: Partial<TableListPagination>;
-  message?: string | null;
 }
 
 interface UpdateMovieParams {
@@ -27,6 +26,15 @@ interface UpdateMovieParams {
   title: string;
   time: string;
   weight: string;
+}
+
+export interface createParams {
+  title: string;
+  body: string;
+}
+
+export interface createMovieParms {
+  movie: createParams;
 }
 
 export interface TableListParams {

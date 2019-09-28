@@ -70,7 +70,9 @@ const errorHandler = (error: { response: Response }): Response | void => {
 };
 
 export const DOMAIN =
-  process.env.NODE_ENV === 'production' ? `http://staging.qiuzhi99.com` : `http://localhost:5000`;
+  process.env.NODE_ENV === 'production'
+    ? `http://staging.qiuzhi99.com`
+    : `http://staging.qiuzhi99.com`;
 
 /**
  * 配置request请求时的默认参数

@@ -115,6 +115,19 @@ export default {
       Routes: ['src/pages/Authorized'],
       routes: [
         {
+          name: '内容管理',
+          icon: 'table',
+          path: '/admin',
+          routes: [
+            {
+              name: '视频',
+              icon: 'table',
+              path: '/admin/movies',
+              component: './admin/movies/list',
+            },
+          ],
+        },
+        {
           name: 'success',
           path: '/result/success',
           component: './result/success',
@@ -132,6 +145,7 @@ export default {
           component: './exception/500',
           hideInMenu: true,
         },
+
         {
           path: '/',
           name: '欢迎',

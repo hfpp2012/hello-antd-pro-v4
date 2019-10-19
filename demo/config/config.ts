@@ -125,6 +125,12 @@ export default {
               path: '/admin/movies',
               component: './admin/movies/list',
             },
+            {
+              name: '视频详情页',
+              path: '/admin/movies/:id',
+              component: './admin/movies/show/$id.tsx',
+              hideInMenu: true,
+            },
           ],
         },
         {

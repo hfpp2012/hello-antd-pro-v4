@@ -3,6 +3,9 @@ export interface MovieItem {
   title: string;
   published_at: string;
   playlist_name: string;
+  is_paid: boolean;
+  weight: number;
+  time: string;
 }
 
 export interface TableListPagination {
@@ -16,10 +19,27 @@ export interface MovieListData {
   page: Partial<TableListPagination>;
 }
 
+interface MovieUpdateParams {
+  weight: number;
+  time: string;
+  id: number;
+  title: string;
+}
+
+export interface MovieCreateParams {
+  movie: {
+    body: string;
+    mp4_url: string;
+    time: string;
+    title: string;
+  };
+}
+
 export interface TableListParams {
   sorter: string;
-  status: string;
-  name: string;
-  pageSize: number;
-  currentPage: number;
+  page: number;
+  q: {
+    title_cont: string;
+  };
+  movie: MovieUpdateParams;
 }

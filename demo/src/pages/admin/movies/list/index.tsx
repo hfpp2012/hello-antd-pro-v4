@@ -7,11 +7,10 @@ import {
   Form,
   Icon,
   Input,
-  InputNumber,
   Menu,
   Row,
-  Select,
   message,
+  Tag,
 } from 'antd';
 import React, { Component, Fragment } from 'react';
 
@@ -24,12 +23,13 @@ import { StateType } from './model';
 import CreateForm from './components/CreateForm';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
-import { MovieItem, TableListPagination, TableListParams } from './data.d';
+import { MovieItem, TableListPagination, TableListParams, MovieCreateParams } from './data.d';
 
 import styles from './style.less';
+import { truncateString } from '@/utils/utils';
+import { Link } from 'umi';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 const getValue = (obj: { [x: string]: string[] }) =>
   Object.keys(obj)
     .map(key => obj[key])
@@ -38,16 +38,16 @@ const getValue = (obj: { [x: string]: string[] }) =>
 interface TableListProps extends FormComponentProps {
   dispatch: Dispatch<Action<'movies/add' | 'movies/fetch' | 'movies/remove' | 'movies/update'>>;
   loading: boolean;
-  listTableList: StateType;
+  movies: StateType;
 }
 
 interface TableListState {
   modalVisible: boolean;
   updateModalVisible: boolean;
-  expandForm: boolean;
   selectedRows: MovieItem[];
   formValues: { [key: string]: string };
   stepFormValues: Partial<MovieItem>;
+  errorMessage?: string;
 }
 
 /* eslint react/no-multi-comp:0 */
@@ -71,7 +71,6 @@ class TableList extends Component<TableListProps, TableListState> {
   state: TableListState = {
     modalVisible: false,
     updateModalVisible: false,
-    expandForm: false,
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
@@ -79,12 +78,26 @@ class TableList extends Component<TableListProps, TableListState> {
 
   columns: StandardTableColumnProps[] = [
     {
+      title: '编号',
+      dataIndex: 'id',
+      render: (id: number) => <Link to={`/admin/movies/${id}`}>{id}</Link>,
+    },
+    {
       title: '标题',
       dataIndex: 'title',
+      render: (val: string, record: MovieItem) => (
+        <Link to={`/admin/movies/${record.id}`}>{truncateString(val, 30)}</Link>
+      ),
     },
     {
       title: '课程',
       dataIndex: 'playlist_name',
+      render: (val: string) => truncateString(val, 30),
+    },
+    {
+      title: '是否付费',
+      dataIndex: 'is_paid',
+      render: (val: boolean) => <Tag color={val ? 'green' : 'red'}>{val ? '是' : '否'}</Tag>,
     },
     {
       title: '发布时间',
@@ -92,7 +105,7 @@ class TableList extends Component<TableListProps, TableListState> {
     },
     {
       title: '操作',
-      render: (text, record) => (
+      render: (_, record: MovieItem) => (
         <Fragment>
           <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
         </Fragment>
@@ -122,8 +135,7 @@ class TableList extends Component<TableListProps, TableListState> {
     }, {});
 
     const params: Partial<TableListParams> = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
+      page: pagination.current,
       ...formValues,
       ...filters,
     };
@@ -149,13 +161,6 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
-  toggleForm = () => {
-    const { expandForm } = this.state;
-    this.setState({
-      expandForm: !expandForm,
-    });
-  };
-
   handleMenuClick = (e: { key: string }) => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -166,12 +171,18 @@ class TableList extends Component<TableListProps, TableListState> {
         dispatch({
           type: 'movies/remove',
           payload: {
-            key: selectedRows.map(row => row.key),
+            id: selectedRows.map(row => row.id),
           },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
+          callback: (msg?: string) => {
+            if (msg) {
+              message.error(msg);
+            } else {
+              dispatch({ type: 'movies/fetch' });
+              this.setState({
+                selectedRows: [],
+              });
+              message.success('删除成功');
+            }
           },
         });
         break;
@@ -196,7 +207,11 @@ class TableList extends Component<TableListProps, TableListState> {
 
       const values = {
         ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+        q: {
+          ...fieldsValue.q,
+          published_at_eq:
+            fieldsValue.q.published_at_eq && fieldsValue.q.published_at_eq.format('YYYY-MM-DD'),
+        },
       };
 
       this.setState({
@@ -223,17 +238,25 @@ class TableList extends Component<TableListProps, TableListState> {
     });
   };
 
-  handleAdd = (fields: { desc: any }) => {
+  handleAdd = (fields: MovieCreateParams, cb: () => void) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'movies/add',
       payload: {
-        desc: fields.desc,
+        ...fields,
+      },
+      callback: (msg?: string) => {
+        if (msg) {
+          this.setState({
+            errorMessage: msg,
+          });
+        } else {
+          cb();
+          message.success('添加成功');
+          this.handleModalVisible();
+        }
       },
     });
-
-    message.success('添加成功');
-    this.handleModalVisible();
   };
 
   handleUpdate = (fields: FormValueType) => {
@@ -241,14 +264,19 @@ class TableList extends Component<TableListProps, TableListState> {
     dispatch({
       type: 'movies/update',
       payload: {
-        name: fields.name,
-        desc: fields.desc,
-        key: fields.key,
+        ...fields,
+      },
+      callback: (msg?: string) => {
+        if (msg) {
+          this.setState({
+            errorMessage: msg,
+          });
+        } else {
+          message.success('修改成功');
+          this.handleUpdateModalVisible();
+        }
       },
     });
-
-    message.success('配置成功');
-    this.handleUpdateModalVisible();
   };
 
   renderSimpleForm() {
@@ -258,17 +286,14 @@ class TableList extends Component<TableListProps, TableListState> {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="标题">
+              {getFieldDecorator('q[title_cont]')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>,
+            <FormItem label="发布日期">
+              {getFieldDecorator('q[published_at_eq]')(
+                <DatePicker style={{ width: '100%' }} placeholder="请输入发布日期" />,
               )}
             </FormItem>
           </Col>
@@ -280,93 +305,11 @@ class TableList extends Component<TableListProps, TableListState> {
               <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
                 重置
               </Button>
-              <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-                展开 <Icon type="down" />
-              </a>
             </span>
           </Col>
         </Row>
       </Form>
     );
-  }
-
-  renderAdvancedForm() {
-    const {
-      form: { getFieldDecorator },
-    } = this.props;
-    return (
-      <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>,
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="调用次数">
-              {getFieldDecorator('number')(<InputNumber style={{ width: '100%' }} />)}
-            </FormItem>
-          </Col>
-        </Row>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <FormItem label="更新日期">
-              {getFieldDecorator('date')(
-                <DatePicker style={{ width: '100%' }} placeholder="请输入更新日期" />,
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status3')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>,
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status4')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>,
-              )}
-            </FormItem>
-          </Col>
-        </Row>
-        <div style={{ overflow: 'hidden' }}>
-          <div style={{ float: 'right', marginBottom: 24 }}>
-            <Button type="primary" htmlType="submit">
-              查询
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-              重置
-            </Button>
-            <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-              收起 <Icon type="up" />
-            </a>
-          </div>
-        </div>
-      </Form>
-    );
-  }
-
-  renderForm() {
-    const { expandForm } = this.state;
-    return expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
 
   render() {
@@ -375,11 +318,16 @@ class TableList extends Component<TableListProps, TableListState> {
       loading,
     } = this.props;
 
-    const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
+    const {
+      selectedRows,
+      modalVisible,
+      updateModalVisible,
+      stepFormValues,
+      errorMessage,
+    } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
 
@@ -395,14 +343,13 @@ class TableList extends Component<TableListProps, TableListState> {
       <PageHeaderWrapper>
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>{this.renderForm()}</div>
+            <div className={styles.tableListForm}>{this.renderSimpleForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
                 新建
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />
@@ -421,12 +368,13 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} />
+        <CreateForm errorMessage={errorMessage} {...parentMethods} modalVisible={modalVisible} />
         {stepFormValues && Object.keys(stepFormValues).length ? (
           <UpdateForm
             {...updateMethods}
             updateModalVisible={updateModalVisible}
             values={stepFormValues}
+            errorMessage={errorMessage}
           />
         ) : null}
       </PageHeaderWrapper>

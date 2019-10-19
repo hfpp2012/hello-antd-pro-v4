@@ -1,6 +1,6 @@
 import { AnyAction, Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
-import { addRule, queryMovies, removeRule, updateRule } from './service';
+import { addMovie, queryMovies, removeMovie, updateMovie } from './service';
 
 import { MovieListData } from './data.d';
 
@@ -24,6 +24,7 @@ export interface ModelType {
   };
   reducers: {
     save: Reducer<StateType>;
+    updateMovie: Reducer<StateType>;
   };
 }
 
@@ -46,28 +47,38 @@ const Model: ModelType = {
       });
     },
     *add({ payload, callback }, { call, put }) {
-      const response = yield call(addRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+      try {
+        yield call(addMovie, payload);
+        yield put({
+          type: 'fetch',
+        });
+        callback();
+      } catch (e) {
+        callback(e.data.message);
+      }
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+      try {
+        yield call(removeMovie, payload);
+        callback();
+      } catch (e) {
+        callback(e.data.message);
+      }
     },
     *update({ payload, callback }, { call, put }) {
-      const response = yield call(updateRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+      try {
+        const response = yield call(updateMovie, payload);
+        // yield put({
+        //   type: 'fetch',
+        // });
+        yield put({
+          type: 'updateMovie',
+          payload: response.response,
+        });
+        callback();
+      } catch (e) {
+        callback(e.data.message);
+      }
     },
   },
 
@@ -76,6 +87,18 @@ const Model: ModelType = {
       return {
         ...state,
         data: action.payload,
+      };
+    },
+    updateMovie(state, action) {
+      return {
+        ...state,
+        data: {
+          ...state!.data,
+          movies: state!.data.movies.map(movie => {
+            if (movie.id === action.payload.movie.id) return action.payload.movie;
+            return movie;
+          }),
+        },
       };
     },
   },

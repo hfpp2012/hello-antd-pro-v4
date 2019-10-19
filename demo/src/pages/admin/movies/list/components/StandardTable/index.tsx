@@ -40,8 +40,8 @@ interface StandardTableState {
   needTotalList: StandardTableColumnProps[];
 }
 
-class StandardTable extends Component<StandardTableProps<TableListItem>, StandardTableState> {
-  static getDerivedStateFromProps(nextProps: StandardTableProps<TableListItem>) {
+class StandardTable extends Component<StandardTableProps<MovieItem>, StandardTableState> {
+  static getDerivedStateFromProps(nextProps: StandardTableProps<MovieItem>) {
     // clean state
     if (nextProps.selectedRows.length === 0) {
       const needTotalList = initTotalList(nextProps.columns);
@@ -104,16 +104,15 @@ class StandardTable extends Component<StandardTableProps<TableListItem>, Standar
       ? {
           showSizeChanger: true,
           showQuickJumper: true,
-          ...page,
+          current: (page as any).current_page,
+          pageSize: (page as any).limit_value,
+          total: (page as any).total_count,
         }
       : false;
 
     const rowSelection: TableRowSelection<MovieItem> = {
       selectedRowKeys,
       onChange: this.handleRowSelectChange,
-      getCheckboxProps: (record: MovieItem) => ({
-        disabled: record.disabled,
-      }),
     };
 
     return (
@@ -142,7 +141,7 @@ class StandardTable extends Component<StandardTableProps<TableListItem>, Standar
           />
         </div>
         <Table
-          rowKey={rowKey || 'key'}
+          rowKey={rowKey || 'id'}
           rowSelection={rowSelection}
           dataSource={movies}
           pagination={paginationProps}
